@@ -12,12 +12,6 @@
 #include "esp_err.h"
 #include "nvs.h"
 #include "esp_http_server.h"
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-#include "driver/mcpwm_prelude.h"
-#else
-#include "driver/mcpwm.h"
-#endif
-
 #include "http_server.h"
 
 static const char *TAG = "HTTP";
