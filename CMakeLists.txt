@@ -15,4 +15,4 @@ set(EXTRA_COMPONENT_DIRS
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(esp-idf_ble_gamepad_and_ui)
-add_compile_definitions(ARDUINO_ARCH_ESP32=1)
+#add_compile_definitions(ARDUINO_ARCH_ESP32=1)

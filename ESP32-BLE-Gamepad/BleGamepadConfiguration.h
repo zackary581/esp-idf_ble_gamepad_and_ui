@@ -212,7 +212,6 @@ private:
     bool _whichSimulationControls[POSSIBLESIMULATIONCONTROLS];
     uint16_t _vid;
     uint16_t _pid;
-	uint16_t _guidVersion;
     int16_t _axesMin;
     int16_t _axesMax;
     int16_t _simulationMin;
@@ -262,7 +261,6 @@ public:
     const bool *getWhichSimulationControls() const;
     uint16_t getVid();
     uint16_t getPid();
-	uint16_t getGuidVersion();
     int16_t getAxesMin();
     int16_t getAxesMax();
     int16_t getSimulationMin();
@@ -304,7 +302,6 @@ public:
     void setWhichSimulationControls(bool rudder, bool throttle, bool accelerator, bool brake, bool steering);
     void setVid(uint16_t value);
     void setPid(uint16_t value);
-	void setGuidVersion(uint16_t value);
     void setAxesMin(int16_t value);
     void setAxesMax(int16_t value);
     void setSimulationMin(int16_t value);

@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <NimBLEDevice.h>
 #include <NimBLEUtils.h>
 #include <NimBLEServer.h>
@@ -7,6 +6,7 @@
 #include "HIDKeyboardTypes.h"
 #include <driver/adc.h>
 #include "sdkconfig.h"
+#include <stdexcept>
 
 #include "BleConnectionStatus.h"
 #include "BleGamepad.h"
@@ -34,7 +34,6 @@ uint8_t reportSize = 0;
 uint8_t numOfButtonBytes = 0;
 uint16_t vid;
 uint16_t pid;
-uint16_t guidVersion;
 uint16_t axesMin;
 uint16_t axesMax;
 uint16_t simulationMin;
@@ -90,7 +89,6 @@ void BleGamepad::begin(BleGamepadConfiguration *config)
 
     vid = configuration.getVid();
     pid = configuration.getPid();
-    guidVersion = configuration.getGuidVersion();
 
     uint8_t high = highByte(vid);
     uint8_t low = lowByte(vid);
@@ -101,10 +99,6 @@ void BleGamepad::begin(BleGamepadConfiguration *config)
     low = lowByte(pid);
 
     pid = low << 8 | high;
-
-    high = highByte(guidVersion);
-    low = lowByte(guidVersion);
-    guidVersion = low << 8 | high;
 
     uint8_t buttonPaddingBits = 8 - (configuration.getButtonCount() % 8);
     if (buttonPaddingBits == 8)
@@ -1401,7 +1395,7 @@ void BleGamepad::taskServer(void *pvParameter)
         NIMBLE_PROPERTY::READ);
     pCharacteristic_Hardware_Revision->setValue(hardwareRevision);
 
-    BleGamepadInstance->hid->pnp(0x01, vid, pid, guidVersion);
+    BleGamepadInstance->hid->pnp(0x01, vid, pid, 0x0110);
     BleGamepadInstance->hid->hidInfo(0x00, 0x01);
 
     NimBLEDevice::setSecurityAuth(BLE_SM_PAIR_AUTHREQ_BOND);
