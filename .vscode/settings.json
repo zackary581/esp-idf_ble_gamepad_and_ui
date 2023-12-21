@@ -12,6 +12,12 @@
   "idf.pythonBinPathWin": "C:\\Users\\Zackary\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
   "idf.toolsPathWin": "C:\\Users\\Zackary\\.espressif",
   "files.associations": {
-    "esp_spiffs.h": "c"
+    "esp_spiffs.h": "c",
+    "memory": "cpp",
+    "semaphore": "cpp",
+    "stop_token": "cpp",
+    "array": "cpp",
+    "string": "cpp",
+    "string_view": "cpp"
   }
 }
