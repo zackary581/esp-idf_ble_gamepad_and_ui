@@ -6,6 +6,7 @@
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_netif_net_stack.h"
+#include "esp_http_server.h"
 
 /* STA Configuration */
 #define EXAMPLE_ESP_WIFI_STA_SSID CONFIG_ESP_WIFI_REMOTE_AP_SSID
@@ -47,6 +48,21 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief File path for the HTML index page.
+ */
+#define HTML_INDEX_PATH "index.html"
+
+/**
+ * @brief File path for the HTML file when the server is off.
+ */
+#define OFF_HTML_FILE_PATH "index.html"
+
+    /**
+     * @brief Queue handle for HTTP requests.
+     */
+    extern QueueHandle_t xQueueHttp;
+
     static const char *TAG_AP = "WiFi SoftAP";
     static const char *TAG_STA = "WiFi Sta";
 
@@ -56,10 +72,29 @@ extern "C"
     static EventGroupHandle_t s_wifi_event_group;
 
     void wifi_event_handler(void *arg, esp_event_base_t event_base,
-                                   int32_t event_id, void *event_data);
+                            int32_t event_id, void *event_data);
 
     esp_netif_t *wifi_init_softap(void);
     esp_netif_t *wifi_init_sta(void);
+    /**
+     * @brief HTTP server request handler for sending the web page.
+     */
+    esp_err_t send_web_page(httpd_req_t *req);
+
+    /**
+     * @brief HTTP server request handler for GET requests.
+     */
+    esp_err_t get_req_handler(httpd_req_t *req);
+
+    /**
+     * @brief Function to set the SPIFFS file system and mount it.
+     */
+    esp_err_t SPIFFS_Mount(char *path, char *label, int max_files);
+
+    /**
+     * @brief Function to initialize mDNS.
+     */
+    void initialise_mdns(void);
 
 #ifdef __cplusplus
 }

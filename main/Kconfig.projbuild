@@ -27,6 +27,12 @@ menu "Example Configuration"
             default 4
             help
                 Max number of the STA connects to AP.
+
+        config MDNS_HOSTNAME
+            string "mDNS Hostname"
+            default "esp32-server"
+            help
+                The mDNS host name used by the ESP32.
     endmenu
 
     menu "STA Configuration"
