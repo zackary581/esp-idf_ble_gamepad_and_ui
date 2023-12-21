@@ -2,9 +2,10 @@ idf_component_register(
     SRCS
         "main.cpp"
         "gpio.cpp"
-        "adc.c"
+        #"adc.c"
         "http_server.c"
-        "soft_access_point.c"
+        #"soft_access_point.c"
+        "softap_sta.cpp"
 
         "../ESP32-BLE-Gamepad/BleConnectionStatus.cpp"
         "../ESP32-BLE-Gamepad/BleGamepad.cpp"
@@ -16,24 +17,25 @@ idf_component_register(
         "../ESP32-BLE-Gamepad"
 
     REQUIRES
-        arduino
-        esp-nimble-cpp
-        driver
-        nvs_flash
-        soc
-        hal 
-        esp_adc
-        lwip
-        esp_wifi
-        esp_phy
-        esp_netif
-        esp_event
-        esp_coex
-        wpa_supplicant
-        mbedtls
-        console
-        esp_pm
-        esp_http_server
-        esp_lcd
-        spiffs
+    driver
+    #arduino
+    nvs_flash
+    soc
+    hal 
+    esp_adc
+    esp-nimble-cpp
+    lwip
+    esp_wifi
+    esp_phy
+    esp_netif
+    esp_event
+    esp_coex
+    wpa_supplicant
+    mbedtls
+    console
+    esp_pm
+    esp_http_server
+    esp_lcd
+    spiffs
+    freertos
 )

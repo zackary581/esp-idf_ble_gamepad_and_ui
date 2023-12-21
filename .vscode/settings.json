@@ -18,6 +18,18 @@
     "stop_token": "cpp",
     "array": "cpp",
     "string": "cpp",
-    "string_view": "cpp"
+    "string_view": "cpp",
+    "http_server.h": "c",
+    "*.tcc": "cpp",
+    "ratio": "cpp",
+    "system_error": "cpp",
+    "functional": "cpp",
+    "regex": "cpp",
+    "tuple": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp",
+    "esp_wifi.h": "c",
+    "esp_netif_net_stack.h": "c",
+    "inet.h": "c"
   }
 }

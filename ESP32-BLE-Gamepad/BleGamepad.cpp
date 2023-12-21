@@ -77,6 +77,14 @@ void BleGamepad::resetButtons()
     memset(&_buttons, 0, sizeof(_buttons));
 }
 
+uint8_t highByte(uint16_t value) {
+    return (uint8_t)(value >> 8);
+}
+
+uint8_t lowByte(uint16_t value) {
+    return (uint8_t)(value & 0xFF);
+}
+
 void BleGamepad::begin(BleGamepadConfiguration *config)
 {
     configuration = *config; // we make a copy, so the user can't change actual values midway through operation, without calling the begin function again

@@ -33,6 +33,18 @@ extern "C"
      */
     int adc_get_raw();
 
+    /**
+     * @brief Reads the raw ADC value.
+     * @return The raw ADC value.
+     */
+    int adc_get_raw_throttle();
+
+    /**
+     * @brief Reads the raw ADC value.
+     * @return The raw ADC value.
+     */
+    int adc_get_raw_brake();
+
 #ifdef __cplusplus
 }
 #endif

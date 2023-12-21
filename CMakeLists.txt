@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.5)
 cmake_minimum_required(VERSION 3.5)
 set(EXTRA_COMPONENT_DIRS
 "./components/esp-nimble-cpp" 
-"./components/arduino" 
+#"./components/arduino" 
 )
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)

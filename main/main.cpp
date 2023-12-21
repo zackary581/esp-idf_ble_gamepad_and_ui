@@ -4,11 +4,14 @@
 #include "esp_log.h"
 
 #include "gpio.h"
-#include "adc.h"
-#include "soft_access_point.h"
+// #include "adc.h"
+// #include "soft_access_point.h"
+#include "softap_sta.h"
 #include "BleGamepad.h"
 
 // #include "Arduino.h"
+// static const char *TAG_AP = "WiFi SoftAP";
+// static const char *TAG_STA = "WiFi Sta";
 
 #define numOfButtons 14
 #define numOfHatSwitches 0
@@ -43,6 +46,7 @@ typedef struct
 } DynamicArray;
 
 DynamicArray gpios;
+// gpio_num_t gpios;
 
 // Function to initialize a dynamic array
 void initializeDynamicArray(DynamicArray *array, size_t initialSize)
@@ -79,6 +83,7 @@ extern "C" void variable_id_web_sever_task(void *pvParameters)
                 char *token = strtok(str_value_g, delimiter);
 
                 DynamicArray tempArray;
+                // DynamicArray tempArray;
                 initializeDynamicArray(&tempArray, 48); // Start with an initial size
 
                 // Loop through the tokens
@@ -95,17 +100,26 @@ extern "C" void variable_id_web_sever_task(void *pvParameters)
                     token = strtok(NULL, delimiter);
                 }
 
+                // For DynamicArray tempArray "local" scope
                 // Resize tempArray based on the actual number of elements
                 resizeDynamicArray(&tempArray, tempArray.size);
 
                 // Now, assign the tempArray to gpios array
-                gpio_num_t gpios[tempArray.size];
-                memcpy(gpios, tempArray.data, tempArray.size);
+                gpio_num_t temp_gpios[tempArray.size];
+                // memset(gpios, 0, sizeof(gpios));
+                memcpy(temp_gpios, tempArray.data, tempArray.size);
+
+                init_gpio(temp_gpios);
+
+                // For DynamicArray gpios "global" scope
+                // Resize gpios based on the actual number of elements
+                resizeDynamicArray(&gpios, gpios.size);
+                memset(gpios.data, 0, sizeof(gpios));
+                memcpy(gpios.data, tempArray.data, tempArray.size);
+                gpios.size = tempArray.size;
 
                 // Free the memory allocated for tempArray
                 free(tempArray.data);
-
-                init_gpio(gpios);
             }
             else if (strcmp(variable_id_g, "esp32_chip_series") == 0)
             {
@@ -125,32 +139,34 @@ extern "C" void variable_id_web_sever_task(void *pvParameters)
     }
 }
 
-extern "C" void http_server_task_1(void *pvParameters);
-
 extern "C" void button_task(void *arg)
 {
-    bool pressed[sizeof(gpios)];
+    bool pressed[gpios.size];
+    for (uint8_t i = 0; i < sizeof(pressed); ++i)
+    {
+        pressed[i] = false;
+    }
 
     while (1)
     {
-        for (uint8_t i = 0; i < sizeof(gpios); i++)
+        for (uint8_t i = 0; i < gpios.size; i++)
         {
             // PADDLE_SHIFTER_SWITCH_1
-            if (gpio_get_level(gpios[i]) == 0 && pressed[i] == false)
+            if (gpio_get_level(gpios.data[i]) == 0 && pressed[i] == false)
             {
-                vTaskDelay(pdMS_TO_TICKS(1));
-                if (gpio_get_level(gpios[i]) == 0)
+                vTaskDelay(pdMS_TO_TICKS(2));
+                if (gpio_get_level(gpios.data[i]) == 0)
                 {
-                    printf("GPIO: %d High\n", gpios[i]);
+                    printf("GPIO: %d High\n", gpios.data[i]);
                     bleGamepad.press(1);
                     bleGamepad.sendReport();
                     pressed[i] = true;
                     vTaskDelay(pdMS_TO_TICKS(50)); // Adjust the delay according to your needs
                 }
             }
-            else if (gpio_get_level(gpios[i]) == 1 && pressed[i] == true)
+            else if (gpio_get_level(gpios.data[i]) == 1 && pressed[i] == true)
             {
-                vTaskDelay(pdMS_TO_TICKS(1));
+                vTaskDelay(pdMS_TO_TICKS(2));
                 bleGamepad.release(1);
                 bleGamepad.sendReport();
                 pressed[i] = false;
@@ -163,28 +179,32 @@ extern "C" void button_task(void *arg)
 
 extern "C" void button_matrix_task(void *arg)
 {
-    bool pressed[sizeof(gpios)];
+    bool pressed[gpios.size];
+    for (uint8_t i = 0; i < sizeof(pressed); ++i)
+    {
+        pressed[i] = false;
+    }
 
     while (1)
     {
-        for (uint8_t i = 0; i < sizeof(gpios) - 1; i++)
+        for (uint8_t i = 0; i < gpios.size - 1; i++)
         {
             // PADDLE_SHIFTER_SWITCH_1
-            if (gpio_get_level(gpios[i]) == 0 && gpio_get_level(gpios[i + 1]) == 0 && pressed[i] == false)
+            if (gpio_get_level(gpios.data[i]) == 0 && gpio_get_level(gpios.data[i + 1]) == 0 && pressed[i] == false)
             {
-                vTaskDelay(pdMS_TO_TICKS(1));
-                if (gpio_get_level(gpios[i]) == 0)
+                vTaskDelay(pdMS_TO_TICKS(2));
+                if (gpio_get_level(gpios.data[i]) == 0)
                 {
-                    printf("GPIO: %d and GPIO: %d High\n", gpios[i], gpios[i + 1]);
+                    printf("GPIO: %d and GPIO: %d High\n", gpios.data[i], gpios.data[i + 1]);
                     bleGamepad.press(1);
                     bleGamepad.sendReport();
                     pressed[i] = true;
                     vTaskDelay(pdMS_TO_TICKS(50)); // Adjust the delay according to your needs
                 }
             }
-            else if (gpio_get_level(gpios[i]) == 1 && gpio_get_level(gpios[i + 1]) == 1 && pressed[i] == true)
+            else if (gpio_get_level(gpios.data[i]) == 1 && gpio_get_level(gpios.data[i + 1]) == 1 && pressed[i] == true)
             {
-                vTaskDelay(pdMS_TO_TICKS(1));
+                vTaskDelay(pdMS_TO_TICKS(2));
                 bleGamepad.release(1);
                 bleGamepad.sendReport();
                 pressed[i] = false;
@@ -195,6 +215,7 @@ extern "C" void button_matrix_task(void *arg)
     }
 }
 
+/*
 extern "C" void adc_task(void *pvParameters)
 {
     while (1)
@@ -212,6 +233,7 @@ extern "C" void adc_task(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
+*/
 
 /*
 extern "C" void gpio_update(gpio_num_t gpios[])
@@ -219,6 +241,9 @@ extern "C" void gpio_update(gpio_num_t gpios[])
     init_gpio();
 }
 */
+
+extern "C" void http_server_task_1(void *pvParameters);
+
 extern "C" void app_main(void)
 {
     printf("Starting BLE work!");
@@ -250,12 +275,27 @@ extern "C" void app_main(void)
     // Set steering to center
     // bleGamepad.setSteering(0);
 
-    adc_init();
-    initializeDynamicArray
-        init_gpio(gpios->data);
+    // adc_init();
+    // init_gpio(gpios);
 
-    xTaskCreate(&adc_task, "adc_task", 4096, NULL, 5, NULL);
-    xTaskCreate(&button_task, "button_task", 4096, NULL, 5, NULL);
+    // DynamicArray tempArray;
+    initializeDynamicArray(&gpios, 1); // Start with an initial size
+
+    // Now, assign the tempArray to gpios array
+    gpio_num_t temp_gpios_main[gpios.size];
+    // memset(gpios, 0, sizeof(gpios));
+    memcpy(temp_gpios_main, gpios.data, gpios.size);
+
+    // Free the memory allocated for tempArray
+    // free(gpios.data);
+
+    init_gpio(temp_gpios_main);
+
+    // xTaskCreate(&adc_task, "adc_task", 4096, NULL, 5, NULL);
+    // xTaskCreate(&button_task, "button_task", 4096, NULL, 5, NULL);
+
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -266,35 +306,75 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
-    wifi_init_softap();
+    /* Initialize event group */
+    s_wifi_event_group = xEventGroupCreate();
 
-    // Initialize mDNS
-    initialise_mdns();
+    /* Register Event handler */
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                                                        IP_EVENT_STA_GOT_IP,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        NULL));
 
-    // Initialize SPIFFS
-    ESP_LOGI(TAG, "Initializing SPIFFS");
-    if (SPIFFS_Mount("/html", "storage", 6) != ESP_OK)
+    /*Initialize WiFi */
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+
+    /* Initialize AP */
+    ESP_LOGI(TAG_AP, "ESP_WIFI_MODE_AP");
+    esp_netif_t *esp_netif_ap = wifi_init_softap();
+
+    /* Initialize STA */
+    ESP_LOGI(TAG_STA, "ESP_WIFI_MODE_STA");
+    esp_netif_t *esp_netif_sta = wifi_init_sta();
+
+    /* Start WiFi */
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    /*
+     * Wait until either the connection is established (WIFI_CONNECTED_BIT) or
+     * connection failed for the maximum number of re-tries (WIFI_FAIL_BIT).
+     * The bits are set by event_handler() (see above)
+     */
+    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
+                                           WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+                                           pdFALSE,
+                                           pdFALSE,
+                                           portMAX_DELAY);
+
+    /* xEventGroupWaitBits() returns the bits before the call returned,
+     * hence we can test which event actually happened. */
+    if (bits & WIFI_CONNECTED_BIT)
     {
-        ESP_LOGE(TAG, "SPIFFS mount failed");
-        while (1)
-        {
-            vTaskDelay(1);
-        }
+        ESP_LOGI(TAG_STA, "connected to ap SSID:%s password:%s",
+                 EXAMPLE_ESP_WIFI_STA_SSID, EXAMPLE_ESP_WIFI_STA_PASSWD);
+    }
+    else if (bits & WIFI_FAIL_BIT)
+    {
+        ESP_LOGI(TAG_STA, "Failed to connect to SSID:%s, password:%s",
+                 EXAMPLE_ESP_WIFI_STA_SSID, EXAMPLE_ESP_WIFI_STA_PASSWD);
+    }
+    else
+    {
+        ESP_LOGE(TAG_STA, "UNEXPECTED EVENT");
+        return;
     }
 
-    // Create Queue
-    xQueueHttp = xQueueCreate(10, sizeof(URL_t));
-    configASSERT(xQueueHttp);
+    /* Set sta as the default interface */
+    esp_netif_set_default_netif(esp_netif_sta);
 
-    // Get the local IP address
-    esp_netif_ip_info_t ip_info;
-    ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info));
-
-    char cparam0[64];
-    sprintf(cparam0, IPSTR, IP2STR(&ip_info.ip));
-    printf("Test 1 Main");
-    xTaskCreate(http_server_task_1, "HTTP", 1024 * 6, (void *)cparam0, 2, NULL);
+    /* Enable napt on the AP netif */
+    if (esp_netif_napt_enable(esp_netif_ap) != ESP_OK)
+    {
+        ESP_LOGE(TAG_STA, "NAPT not enabled on the netif: %p", esp_netif_ap);
+    }
     // xTaskCreate(printVariablesTask, "PrintVariablesTask", 4096, NULL, 1, NULL);
     xTaskCreate(variable_id_web_sever_task, "variable_id_web_sever_task", 4096, NULL, 1, NULL);
 

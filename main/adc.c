@@ -20,8 +20,16 @@ void adc_init()
  * @brief Reads the raw ADC value.
  * @return The raw ADC value.
  */
-int adc_get_raw()
+int adc_get_raw_throttle()
 {
-    return adc1_get_raw(ADC1_CHANNEL);
-    // Read and return the raw ADC value from ADC1 for the specified channel.
+    return adc1_get_raw(ADC1_CHANNEL); // adc channel 3 gpio 4
+}
+
+/**
+ * @brief Reads the raw ADC value.
+ * @return The raw ADC value.
+ */
+int adc_get_raw_brake()
+{
+    return adc1_get_raw(ADC1_CHANNEL_5); // Gpio 6
 }
