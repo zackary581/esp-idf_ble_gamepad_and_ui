@@ -7,6 +7,7 @@
 #include "esp_netif.h"
 #include "esp_netif_net_stack.h"
 #include "esp_http_server.h"
+#include "http_server.h"
 
 /* STA Configuration */
 #define EXAMPLE_ESP_WIFI_STA_SSID CONFIG_ESP_WIFI_REMOTE_AP_SSID

@@ -282,7 +282,7 @@ extern "C" void app_main(void)
     initializeDynamicArray(&gpios, 1); // Start with an initial size
 
     // Now, assign the tempArray to gpios array
-    gpio_num_t temp_gpios_main[gpios.size];
+    gpio_num_t temp_gpios_main[gpios.size] = {GPIO_NUM_0};
     // memset(gpios, 0, sizeof(gpios));
     memcpy(temp_gpios_main, gpios.data, gpios.size);
 
@@ -375,6 +375,33 @@ extern "C" void app_main(void)
     {
         ESP_LOGE(TAG_STA, "NAPT not enabled on the netif: %p", esp_netif_ap);
     }
+
+    // Initialize mDNS
+    initialise_mdns();
+
+    // Initialize SPIFFS
+    ESP_LOGI(TAG, "Initializing SPIFFS");
+    if (SPIFFS_Mount("/html", "storage", 6) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "SPIFFS mount failed");
+        while (1)
+        {
+            vTaskDelay(1);
+        }
+    }
+
+    // Create Queue
+    xQueueHttp = xQueueCreate(10, sizeof(URL_t));
+    configASSERT(xQueueHttp);
+
+    // Get the local IP address
+    esp_netif_ip_info_t ip_info;
+    ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info));
+
+    char cparam0[64];
+    sprintf(cparam0, IPSTR, IP2STR(&ip_info.ip));
+    printf("Test 1 Main");
+    xTaskCreate(http_server_task_1, "HTTP", 1024 * 6, (void *)cparam0, 2, NULL);
     // xTaskCreate(printVariablesTask, "PrintVariablesTask", 4096, NULL, 1, NULL);
     xTaskCreate(variable_id_web_sever_task, "variable_id_web_sever_task", 4096, NULL, 1, NULL);
 

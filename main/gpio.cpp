@@ -11,7 +11,7 @@ extern "C" void init_gpio(gpio_num_t gpios[])
     // GPIO Inputs Configuration
     // ----------------------------------------------
     // Configure GPIO input pins for encoder channels A, B, Z, and servo drive signals
-    gpio_config_t gpio_conf_input; // Configuration structure for input pins
+    gpio_config_t gpio_conf_input = {}; // Initialize the structure to zero
 
     // Specify the GPIO pins to be configured as inputs using a bitmask
     for (uint8_t i = 0; i < sizeof(gpios) / sizeof(gpio_num_t); i++)

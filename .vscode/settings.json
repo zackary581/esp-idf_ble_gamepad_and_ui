@@ -31,5 +31,6 @@
     "esp_wifi.h": "c",
     "esp_netif_net_stack.h": "c",
     "inet.h": "c"
-  }
+  },
+  "idf.portWin": "COM21"
 }
